@@ -1,0 +1,54 @@
+{
+  "name": "api.url-shortner.in",
+  "version": "1.0.0",
+  "description": "url-shortner provides a backend API for shortening URLs",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon index.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shivaji2121/api.url-shortner.in.git"
+  },
+  "keywords": [
+    "shortening",
+    "URLs",
+    "redirecting",
+    "users",
+    "tracking",
+    "clicks"
+  ],
+  "author": "shiva prasad",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shivaji2121/api.url-shortner.in/issues"
+  },
+  "homepage": "https://github.com/shivaji2121/api.url-shortner.in#readme",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.44.7",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.11",
+    "pg": "^8.16.3",
+    "postgres": "^3.4.7",
+    "valibot": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.5",
+    "@types/express-validator": "^2.20.33",
+    "@types/node": "^24.10.1",
+    "@types/pg": "^8.15.6",
+    "drizzle-kit": "^0.31.7",
+    "express-validator": "^7.3.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
