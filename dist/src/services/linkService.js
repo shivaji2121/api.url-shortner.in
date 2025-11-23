@@ -1,20 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.linkExists = linkExists;
 exports.createLink = createLink;
 exports.getAllLinks = getAllLinks;
 exports.getLinksPaginated = getLinksPaginated;
-exports.getLinkStats = getLinkStats;
+exports.getLinkByCode = getLinkByCode;
 exports.redirectAndTrack = redirectAndTrack;
 exports.urlExists = urlExists;
-exports.deleteLink = deleteLink;
+exports.deleteLinkByCode = deleteLinkByCode;
 const dbConfig_1 = require("../config/dbConfig");
 const links_model_1 = require("../models/links.model");
 const drizzle_orm_1 = require("drizzle-orm");
-async function linkExists(targetUrl) {
-    const result = await dbConfig_1.db.select().from(links_model_1.links).where((0, drizzle_orm_1.eq)(links_model_1.links.targetUrl, targetUrl));
-    return result.length > 0;
-}
 async function createLink(params, baseUrl) {
     const { targetUrl, customCode } = params;
     const code = customCode || generateCode();
@@ -88,21 +83,13 @@ async function getLinksPaginated(page, pageSize, searchCode) {
         pageSize,
     };
 }
-async function getLinkStats(code, baseUrl) {
-    const link = await dbConfig_1.db.select().from(links_model_1.links).where((0, drizzle_orm_1.eq)(links_model_1.links.linkCode, code)).limit(1);
-    if (link.length === 0) {
-        throw new Error('Link not found');
-    }
-    const singleLink = link[0];
-    return {
-        ...singleLink,
-        linkCode: singleLink.linkCode ?? null,
-        totalClicks: singleLink.totalClicks !== undefined && singleLink.totalClicks !== null ? singleLink.totalClicks : 0,
-        createdAt: singleLink.createdAt,
-        updatedAt: singleLink.updatedAt,
-        deletedAt: singleLink.deletedAt ?? null,
-        lastClickedAt: singleLink.lastClickedAt ?? null,
-    };
+async function getLinkByCode(code) {
+    const [link] = await dbConfig_1.db
+        .select()
+        .from(links_model_1.links)
+        .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(links_model_1.links.linkCode, code), (0, drizzle_orm_1.isNull)(links_model_1.links.deletedAt)))
+        .limit(1);
+    return link || null;
 }
 async function redirectAndTrack(code) {
     const link = await dbConfig_1.db.select().from(links_model_1.links).where((0, drizzle_orm_1.eq)(links_model_1.links.linkCode, code)).limit(1);
@@ -123,14 +110,16 @@ async function urlExists(targetUrl) {
     const result = await dbConfig_1.db.select().from(links_model_1.links).where((0, drizzle_orm_1.eq)(links_model_1.links.targetUrl, targetUrl));
     return result.length > 0;
 }
-async function deleteLink(code) {
-    const link = await dbConfig_1.db.select().from(links_model_1.links).where((0, drizzle_orm_1.eq)(links_model_1.links.linkCode, code)).limit(1);
-    if (link.length === 0) {
-        throw new Error('Link not found');
-    }
-    await dbConfig_1.db.update(links_model_1.links)
-        .set({ deletedAt: new Date(), updatedAt: new Date() })
-        .where((0, drizzle_orm_1.eq)(links_model_1.links.linkCode, code));
+async function deleteLinkByCode(code) {
+    const result = await dbConfig_1.db
+        .update(links_model_1.links)
+        .set({
+        deletedAt: new Date(),
+        updatedAt: new Date(),
+    })
+        .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(links_model_1.links.linkCode, code), (0, drizzle_orm_1.isNull)(links_model_1.links.deletedAt)))
+        .returning();
+    return result.length > 0;
 }
 function generateCode(length = 8) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

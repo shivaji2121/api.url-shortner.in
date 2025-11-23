@@ -6,7 +6,6 @@ export const createLinkSchema = object({
 });
 
 export function validateCreateLink(data: any) {
-    // Validate URL format
     let urlValid = true;
     try {
         new URL(data.targetUrl);
@@ -21,7 +20,6 @@ export function validateCreateLink(data: any) {
         };
     }
 
-    // Validate customCode if provided
     if (data.customCode) {
         if (!(typeof data.customCode === 'string' &&
             data.customCode.length >= 6 &&

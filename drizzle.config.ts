@@ -7,7 +7,7 @@ const url = new URL(databaseUrl);
 export default defineConfig({
   schema: './src/models/links.model.ts',
   out: './drizzle',
-  dialect: 'postgresql', // or other dialect
+  dialect: 'postgresql',
   dbCredentials: {
     host: url.hostname,
     port: Number(url.port),

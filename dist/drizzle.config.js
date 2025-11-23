@@ -7,7 +7,7 @@ const url = new URL(databaseUrl);
 exports.default = (0, drizzle_kit_1.defineConfig)({
     schema: './src/models/links.model.ts',
     out: './drizzle',
-    dialect: 'postgresql', // or other dialect
+    dialect: 'postgresql',
     dbCredentials: {
         host: url.hostname,
         port: Number(url.port),

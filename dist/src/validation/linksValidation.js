@@ -8,7 +8,6 @@ exports.createLinkSchema = (0, valibot_1.object)({
     customCode: (0, valibot_1.optional)((0, valibot_1.string)()),
 });
 function validateCreateLink(data) {
-    // Validate URL format
     let urlValid = true;
     try {
         new URL(data.targetUrl);
@@ -22,7 +21,6 @@ function validateCreateLink(data) {
             errors: [{ path: 'targetUrl', message: 'Invalid URL format' }],
         };
     }
-    // Validate customCode if provided
     if (data.customCode) {
         if (!(typeof data.customCode === 'string' &&
             data.customCode.length >= 6 &&
