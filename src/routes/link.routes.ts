@@ -4,7 +4,8 @@ import express from "express";
 const router = express.Router();
 const linksController = new LinksController();
 
-router.post("/", linksController.createLink);
+router.get("/all", linksController.getAllLinksPaginated);
 router.get("/:code", linksController.redirect);
+router.post("/", linksController.createLink);
 
 export default router;

@@ -1,11 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateCode = generateCode;
-function generateCode(length = 8) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
+exports.getPaginationMeta = getPaginationMeta;
+function getPaginationMeta(currentPage, pageSize, totalItems) {
+    const totalPages = Math.ceil(totalItems / pageSize);
+    const nextPage = currentPage < totalPages ? currentPage + 1 : null;
+    const previousPage = currentPage > 1 ? currentPage - 1 : null;
+    return {
+        currentPage,
+        pageSize,
+        totalItems,
+        totalPages,
+        nextPage,
+        previousPage,
+    };
 }

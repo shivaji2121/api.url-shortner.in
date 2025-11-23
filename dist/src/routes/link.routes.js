@@ -7,5 +7,7 @@ const links_controller_1 = __importDefault(require("../controllers/links.control
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const linksController = new links_controller_1.default();
+router.get("/:code", linksController.redirect);
+router.get("/all", linksController.getAllLinksPaginated);
 router.post("/", linksController.createLink);
 exports.default = router;

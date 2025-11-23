@@ -44,7 +44,7 @@ const path_1 = __importDefault(require("path"));
 require("dotenv/config");
 const linkSchema = __importStar(require("../models/links.model"));
 const sslConfig = process.env.DB_SSL === 'true'
-    ? { ca: fs_1.default.readFileSync(path_1.default.join(__dirname, '../../../ca.pem')).toString(), rejectUnauthorized: true }
+    ? { ca: fs_1.default.readFileSync(path_1.default.join(process.cwd(), 'ca.pem')).toString(), rejectUnauthorized: false }
     : false;
 const pool = new pg_1.Pool({
     host: process.env.DB_HOST,

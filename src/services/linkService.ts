@@ -1,6 +1,6 @@
 import { db } from '../config/dbConfig';
 import { links, NewLink, Link } from '../models/links.model';
-import { eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull, sql } from 'drizzle-orm';
 
 interface CreateLinkParams {
     targetUrl: string;
@@ -64,6 +64,52 @@ export async function getAllLinks(baseUrl: string): Promise<Link[]> {
         deletedAt: link.deletedAt ?? null,
         lastClickedAt: link.lastClickedAt ?? null,
     }));
+}
+
+interface PaginatedResult<T> {
+    data: T[];
+    total: number;
+    page: number;
+    pageSize: number;
+}
+
+
+
+export async function getLinksPaginated(
+    page: number,
+    pageSize: number,
+    searchCode?: string
+): Promise<PaginatedResult<Link>> {
+    const offset = (page - 1) * pageSize;
+
+    const condition = searchCode ? and(isNull(links.deletedAt), eq(links.linkCode, searchCode)) : isNull(links.deletedAt);
+
+    const [linksResult, totalResult] = await Promise.all([
+        db.select()
+            .from(links)
+            .where(condition)
+            .limit(pageSize)
+            .offset(offset),
+        db.select({ count: sql<number>`count(*)` })
+            .from(links)
+            .where(condition)]);
+
+    const total = Number(totalResult[0]?.count) || 0;
+
+    const data = linksResult.map((link) => ({
+        ...link,
+        linkCode: link.linkCode ?? null,
+        totalClicks: link.totalClicks ?? 0,
+        deletedAt: link.deletedAt ?? null,
+        lastClickedAt: link.lastClickedAt ?? null,
+    }));
+
+    return {
+        data,
+        total,
+        page,
+        pageSize,
+    };
 }
 
 export async function getLinkStats(code: string, baseUrl: string): Promise<Link> {

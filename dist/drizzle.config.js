@@ -5,7 +5,7 @@ require("dotenv/config");
 const databaseUrl = process.env.DATABASE_URL;
 const url = new URL(databaseUrl);
 exports.default = (0, drizzle_kit_1.defineConfig)({
-    schema: './db/schema.ts',
+    schema: './src/models/links.model.ts',
     out: './drizzle',
     dialect: 'postgresql', // or other dialect
     dbCredentials: {
@@ -14,6 +14,6 @@ exports.default = (0, drizzle_kit_1.defineConfig)({
         user: url.username,
         password: url.password,
         database: url.pathname.slice(1),
-        ssl: process.env.DB_SSL === 'true',
+        ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
     },
 });
