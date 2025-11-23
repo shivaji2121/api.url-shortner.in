@@ -8,12 +8,12 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
 
-app.get('/', (req, res) => res.json({ message: 'URL Shortener API' }));
+app.get('/healthz', (req, res) => res.json({ message: 'URL Shortener API' }));
 
 app.use(cors())
 app.use(express.json());
 
-app.use('/links', linkRoutes);
+app.use('/api/links', linkRoutes);
 
 app.listen(PORT, async () => {
     console.log(`Server running at http://localhost:${PORT}`);

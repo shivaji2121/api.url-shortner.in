@@ -7,10 +7,14 @@ interface CreateLinkParams {
     customCode?: string;
 }
 
-export async function linkExists(targetUrl: string): Promise<boolean> {
-    const result = await db.select().from(links).where(eq(links.targetUrl, targetUrl));
-    return result.length > 0;
+interface PaginatedResult<T> {
+    data: T[];
+    total: number;
+    page: number;
+    pageSize: number;
 }
+
+
 
 export async function createLink(params: CreateLinkParams, baseUrl: string): Promise<Link> {
     const { targetUrl, customCode } = params;
@@ -66,12 +70,7 @@ export async function getAllLinks(baseUrl: string): Promise<Link[]> {
     }));
 }
 
-interface PaginatedResult<T> {
-    data: T[];
-    total: number;
-    page: number;
-    pageSize: number;
-}
+
 
 
 
@@ -112,22 +111,18 @@ export async function getLinksPaginated(
     };
 }
 
-export async function getLinkStats(code: string, baseUrl: string): Promise<Link> {
-    const link = await db.select().from(links).where(eq(links.linkCode, code)).limit(1);
-    if (link.length === 0) {
-        throw new Error('Link not found');
-    }
-    const singleLink = link[0];
-    return {
-        ...singleLink,
-        linkCode: singleLink.linkCode ?? null,
-        totalClicks: singleLink.totalClicks !== undefined && singleLink.totalClicks !== null ? singleLink.totalClicks : 0,
-        createdAt: singleLink.createdAt!,
-        updatedAt: singleLink.updatedAt!,
-        deletedAt: singleLink.deletedAt ?? null,
-        lastClickedAt: singleLink.lastClickedAt ?? null,
-    };
+
+
+export async function getLinkByCode(code: string): Promise<Link | null> {
+    const [link] = await db
+        .select()
+        .from(links)
+        .where(and(eq(links.linkCode, code), isNull(links.deletedAt)))
+        .limit(1);
+
+    return (link as Link) || null;
 }
+
 
 export async function redirectAndTrack(code: string): Promise<string> {
     const link = await db.select().from(links).where(eq(links.linkCode, code)).limit(1);
@@ -152,14 +147,17 @@ export async function urlExists(targetUrl: string): Promise<boolean> {
     return result.length > 0;
 }
 
-export async function deleteLink(code: string): Promise<void> {
-    const link = await db.select().from(links).where(eq(links.linkCode, code)).limit(1);
-    if (link.length === 0) {
-        throw new Error('Link not found');
-    }
-    await db.update(links)
-        .set({ deletedAt: new Date(), updatedAt: new Date() })
-        .where(eq(links.linkCode, code));
+export async function deleteLinkByCode(code: string): Promise<boolean> {
+    const result = await db
+        .update(links)
+        .set({
+            deletedAt: new Date(),
+            updatedAt: new Date(),
+        })
+        .where(and(eq(links.linkCode, code), isNull(links.deletedAt)))
+        .returning();
+
+    return result.length > 0;
 }
 
 function generateCode(length: number = 8): string {
